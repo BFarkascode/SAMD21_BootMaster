@@ -30,8 +30,12 @@ The other particularity is that I am using Serial1 as the "output" of the master
 
 ## User guide
 The bootmaster is ratehr simple regarding use. One needs to provide it a hex file with a specific name - "blinky.hex" in the shared version of the code, though this can be changed - and then follow the instructions published on the master's serial port. The Arduino IDE is perfectly adequate for this.
-One sends commands to the master by writing command numbers to the serial port and then sending them to the master. The commands are:
+One sends commands to the master by writing command numbers to the serial port and then sending them to the master. The commands themselves are self-explenatory and match the "expected" commands that were defined within the STM32_L0 bootloader.
+The commands are:
 0 - turn on external control (necessary to "hijack" the attention of the bootloader we wish to communicate with, the bootloader on the STM32_L0 will ignore everything unless we start with this command!)
 1 - tell the bootloader to jump to the app
-2 - tell the bootloader to engage programming mode
+2 - tell the bootloader to engage programming mode (turns off red LED on the master)
 3 - tell the bootloader to reboot the device (after which one needs to again send "0" to take control of the device)
+4 - publish the app code to the device (will only do anything IF we are in programming mode first)
+5 - wipe the app code from device (will only do anything IF we are in programming mode first)
+Of note, I also made use of the green and red LEDs on the Adalogger to provide additional visual feedback over what is the master doing. If both red and green are HIGH after initialization, the master is ready. If red is LOW, we weither had an error during initialization, or we have the master in programming mode. The green LED goes LOW if we had a problem with the hex file or the master has published the app code and must be reset. All in all, the combination of the two LEDs gives us 4 different scenarios which cover the 4 different states the master might be during use.
