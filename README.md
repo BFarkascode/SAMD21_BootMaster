@@ -4,9 +4,9 @@ Arduino-based master device code to process a hex file on an SDcard and publish 
 ## General description
 This is the master controller for the bootloader I wrote for the STM32_L0 device. It is using the Arduino "SD" library extensively since I wanted to avoid writing a designated driver for SD card and related file management due to time restraints (also I deemed to project to be a one-time use solution that won't be updated or modified much in the future).
 
-The code takes in a hex file - name of the file is hard wired in the code - and then, after removing the offset, the checksum and the additional characters (line breaks, double dots), it stores the data section of the hex file locally in RAM.
+The code takes in a hex file - name of the file is hard wired in the code - and then, after removing the offset, the checksum and the additional characters (line breaks, double dots), it stores the raw data section of the hex file locally in RAM.
 
-Code is originally written for Adafruit Adalogger (M0 Feather) though any similar board running a SAMD11 (like Arduino Zero) would work.
+Code is originally written for Adafruit Adalogger (M0 Feather) though any similar board running a SAMD21 (like Arduino Zero) would work.
 
 ## Previous relevant projects
 The following projects should be checked:
@@ -35,9 +35,9 @@ I am using an Adalogger for the project which runs a SAMD21G micro. This micro h
 The other particularity is that I am using Serial1 as the "output" of the master. This is the pre-set additional USART serial on the Adalogger and it does not exist out of the box, on, say, an Arduino UNO.
 
 ## User guide
-The bootmaster is rather simple regarding use. One needs to provide it a hex file with a specific name - "blinky.hex" in the shared version of the code, though this can be changed - and then follow the instructions published on the master's serial port. The Arduino IDE is perfectly adequate for this.
+The bootmaster is rather simple regarding use. One needs to provide it a hex file with a specific name - "app.hex" in the shared version of the code - and then follow the instructions published on the master's serial port. The Arduino IDE is perfectly adequate for this.
 
-One sends commands to the master by writing command numbers to the serial port and then sending them to the master. The commands themselves are self-explanatory and match the "expected" commands that were defined within the STM32_L0 bootloader.
+One sends commands to the master by writing command numbers to the serial port and then publishing them to the master. The commands themselves are self-explanatory and match the "expected" commands that were defined within the STM32_L0 bootloader.
 
 The commands are:
 0 - turn on external control (necessary to "hijack" the attention of the bootloader we wish to communicate with, the bootloader on the STM32_L0 will ignore everything unless we start with this command!)
