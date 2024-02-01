@@ -2,7 +2,9 @@
 Arduino libraries-based master device code to process a hex file on an SDcard and publish it to UART.
 
 ## General description
-This is the master controller for the bootloader I wrote for the STM32_L0 device. It is using the Arduino "SD" library extensively since I wanted to avoid writing a designated driver for SD card and related file management due to time restraints (also I deemed to project to be a one-time use solution that won't be updated or modified much in the future).
+This is the master controller for the bootloader I wrote for the STM32_L0 device.
+
+I wrote this code in the Arduino environment since I have decided to rely on the Arduino "SD" library extensively. The reason for that is that I wanted to avoid writing a designated (and verified) driver for SD card and related file management due to time restraints. Also I deemed to project to be a one-time use solution that won't be updated or modified much in the future.
 
 The code takes in a hex file - name of the file is hard wired in the code - and then, after removing the offset, the checksum and the additional characters (line breaks, double dots), it stores the raw data section of the hex file locally in RAM.
 
