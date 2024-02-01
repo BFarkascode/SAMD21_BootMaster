@@ -40,6 +40,7 @@ The bootmaster is rather simple regarding use. One needs to provide it a hex fil
 One sends commands to the master by writing command numbers to the serial port and then publishing them to the master. The commands themselves are self-explanatory and match the "expected" commands that were defined within the STM32_L0 bootloader.
 
 The commands are:
+
 0 - turn on external control (necessary to "hijack" the attention of the bootloader we wish to communicate with, the bootloader on the STM32_L0 will ignore everything unless we start with this command!)
 
 1 - tell the bootloader to jump to the app
