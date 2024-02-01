@@ -1,5 +1,5 @@
 # SAMD21_BootMaster
-Arduino-based master device code to process a hex file on an SDcard and publish it to UART.
+Arduino libraries-based master device code to process a hex file on an SDcard and publish it to UART.
 
 ## General description
 This is the master controller for the bootloader I wrote for the STM32_L0 device. It is using the Arduino "SD" library extensively since I wanted to avoid writing a designated driver for SD card and related file management due to time restraints (also I deemed to project to be a one-time use solution that won't be updated or modified much in the future).
