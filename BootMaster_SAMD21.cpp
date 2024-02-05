@@ -24,7 +24,7 @@ uint16_t erase_byte_no;
 uint16_t code_tx_delay;             //the amount of time we need to wait for the serial communication to conclude
                                     //Note: Serial1 is not blocking!
 File hex_file;
-char file_name[] = "blinky.hex";     //<<<<<<<<<<<<<<<<<<< set the hex file name here <<<<<<<<<<<<<<<
+char file_name[] = "app.hex";     //<<<<<<<<<<<<<<<<<<< set the hex file name here <<<<<<<<<<<<<<<
                                     //Note: file name must be less than 8 bytes otherwise the SD open can not deal with it
 bool red_LED_on;            //we use the red LED on the Adalogger as feedback
 bool green_LED_on;          //we use the green LED on the Adalogger as feedback
