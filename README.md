@@ -31,7 +31,7 @@ Similarly annoying is how the libraries are written to cater to user-friendlines
 
 At any rate, I very much dislike this approach of "unknown voodoo black magic" to make things work and will attempt to port the master - and a proper SD library - to bare metal STM32 or SAMD21 once time allows it.
 
-### ASCI/char based coding philosophy
+### ASCII/char based coding philosophy
 As mentioned above, the Arduino environment is very heavily built around the idea of user-friendliness. This means that the entire philosophy of the libraries is built on the "char" type, a type that is just a uint8_t formulated into readable letters using ASCII. We publish chars, we read chars. Mind, char "0" - a one byte information - will be stored as "0x30", i.e. the ASCII coded version of "0" - which will be two bytes of information. Chars can also be "unseen" elements which are rather frustrating to deal with (for example, every line in the hex file ends with a line break character that are not seen in editors, but will totally be there when you read in the line using the Arduino library).
 
 All in all, purely binary numbers can not be directly extracted from the Arduino libraries. They must be converted manually from ASCII and - often times - converted back to ASCII when published. This must be kept in mind if we intend to work with purely binary values (as I personally like to).
