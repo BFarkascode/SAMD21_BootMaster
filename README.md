@@ -10,8 +10,6 @@ Regarding the code, it takes in a hex file - mind, the name of the file is hard 
 
 The code is originally written for Adafruit Adalogger (M0 Feather) though any similar board running a SAMD21 (like Arduino Zero) should work. (Of note, not all SAMD21s have the same memory allocation...)
 
-Of note, I have provided both the ".ino" as well as the ".cpp" vesion of the code to this repository.
-
 ## Previous relevant projects
 The following projects should be checked:
 -	STM32_Bootloader
