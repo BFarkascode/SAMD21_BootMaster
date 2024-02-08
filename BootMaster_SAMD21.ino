@@ -1,7 +1,23 @@
 /*
+ *  Author: BalazsFarkas
+ *  Project: SAMD21_BootMaster
+ *  Processor: SAMD21G18
+ *  Compiler: ARM-GCC (STM32 IDE)
+ *  Program version: 1.1
+ *  File: BootMaster_SAMD21.ino
+ *  Hardware description/pin distribution: Green LED on PA8 and Red LED on PA17, Serial1 on PA10 and PA11
+ *  Change history: 
+
+v.1.0
 BootMaster for SAMD21 and an attached SDcard. Written for an Adafruit Adalogger.
 Code reads in a hex code from an SDcard, then publishes it to Serial1. Hex data package is limited to 24 kB
 Code is directly compatible with the "STM32_Bootloader".
+
+v.1.1
+Removed unnecessary "Serial1.end()" from the end of the loop
+Moved "Serial1.begin" to setup
+Removed unnecessary delay calculations - since we never turn of the Serial1, we don't need to wait until writing is done. The interrupts will handle that for us
+Decreased delay from 6 ms to the minimum 1 ms at the end of each case
 
 */
 
@@ -21,10 +37,8 @@ uint8_t *code_byte_buf_ptr;         //data buffer pointer
 uint16_t code_byte_cnt;
 uint16_t full_page_padding_cnt;     //we work in pages with the "STM32_Bootloader", as such we must add padding to our code to reach a full page in case it does not
 uint16_t erase_byte_no;
-uint16_t code_tx_delay;             //the amount of time we need to wait for the serial communication to conclude
-                                    //Note: Serial1 is not blocking!
 File hex_file;
-char file_name[] = "app.hex";     //<<<<<<<<<<<<<<<<<<< set the hex file name here <<<<<<<<<<<<<<<
+char file_name[] = "blinky.hex";     //<<<<<<<<<<<<<<<<<<< set the hex file name here <<<<<<<<<<<<<<<
                                     //Note: file name must be less than 8 bytes otherwise the SD open can not deal with it
 bool red_LED_on;            //we use the red LED on the Adalogger as feedback
 bool green_LED_on;          //we use the green LED on the Adalogger as feedback
@@ -36,6 +50,13 @@ bool green_LED_on;          //we use the green LED on the Adalogger as feedback
 int page_counter;                   //this is currently not in use
 
 //------------For reply reception (if active)-----------//
+
+//-------------------Function prototypes----------------//
+
+void openFileOnSD(void);
+void ReadFromFile(void);
+
+//-------------------Function prototypes----------------//
 
 //LED feedback
 //If both RED and GREEN are HIGH after initialization, the master is ready.
@@ -82,6 +103,8 @@ void setup() {
 
   openFileOnSD();                                                               //we load all the hex code data into the code buffer
 
+  Serial1.begin(57600);                                                         //Note: baud rate and parity control must match between the master and the bootloader!
+
 }
 
 void loop() {
@@ -108,7 +131,6 @@ void loop() {
 
   //--------Send commands-------//
 
-  Serial1.begin(57600);                                                           //Note: baud rate and parity control must match between the master and the bootloader!
   Serial.print("Decimal code for the command byte: ");                            //we write the command byte into the serial monitor
 
   while (Serial.available() == 0) {
@@ -126,7 +148,7 @@ void loop() {
       Serial1.write(0xF0);
       Serial1.write(0xF0);
       Serial1.write(0xC3); 
-      delay(6);                                                                   //delay for 3 commands plus idle time
+      delay(1);                                                                   //delay to allow the UART buffer to be loaded properly before we break
       break;
 
     case 1:  //Jump to app in DTRTA
@@ -136,7 +158,7 @@ void loop() {
       Serial1.write(0xF0);
       Serial1.write(0xF0);
       Serial1.write(0xAA);
-      delay(6);
+      delay(1);
       break;
 
     case 2:  //Engage programmer mode on the DTRTA
@@ -145,7 +167,7 @@ void loop() {
       Serial1.write(0xF0);
       Serial1.write(0xF0);
       Serial1.write(0xBB);
-      delay(6);
+      delay(1);
       red_LED_on = false;
       Serial.println(" ");
       break;
@@ -157,7 +179,7 @@ void loop() {
       Serial1.write(0xF0);
       Serial1.write(0xF0);
       Serial1.write(0xCC);  //00001111
-      delay(6);
+      delay(1);
       break;
 
     case 4:  //send the processed code over the UART, byte by byte
@@ -177,14 +199,10 @@ void loop() {
         for (int i = code_byte_cnt; i < full_page_padding_cnt; i++) Serial1.write((uint8_t)0x0);
         //------------Code padding------------//
 
-        //------------Delay calculations------------//
-        //Note: Serial1 is non-blocking, so we need to wait until is has finished
-        code_tx_delay = ((full_page_padding_cnt) / 256) * 136;
-        delay(code_tx_delay);                                                      //delay value for 9600 baud rate - 4 pages (8x32 bytes a page), 1 page 136 ms, n bytes will be (n / 256) * 136
-        Serial.println(" ");
-        Serial.print("The delay will be: ");
-        Serial.println(code_tx_delay);
-        //------------Delay calculations------------//
+        //------------Delay------------//
+        //Note: Serial1 is non-blocking, so should to wait until is has finished before shutting off the serial. Since here we don't do that, we don't need any more delay than delay(1) 
+        delay(1);
+        //------------Delay------------//
 
         //------------Confirmation from device------------//
 
@@ -215,9 +233,7 @@ void loop() {
       //------------Wipe app memory------------//
 
       //------------Delay calculations------------//
-      code_tx_delay = (erase_byte_no / 256) * 136;
-      delay(code_tx_delay);                                                       //delay value for 9600 baud rate - 4 pages (8x32 bytes a page), 1 page 136 ms, n bytes will be (n / 256) * 136
-
+      delay(1);
       Serial.print("The app has been erased... ");
       Serial.println(" ");
       //------------Delay calculations------------//
@@ -229,14 +245,12 @@ void loop() {
       break;
   }
 
-  Serial1.end();
-
   //--------Send commands-------//
 }
 
 
 //-----------------------Test SD card and file availability-------------------------------//
-void openFileOnSD() {
+void openFileOnSD(void) {
   Serial.println("Initializing SD card... ");
   // see if the card is present and can be initialized:
   if (!SD.begin(SD_CS)) {
@@ -262,7 +276,7 @@ void openFileOnSD() {
 
 
 //-----------------------Read file-------------------------------//
-void ReadFromFile() {
+void ReadFromFile(void) {
   File myFile = SD.open(file_name);
   uint16_t char_cnt = 0;                                                           //how many characters we have read in
   uint8_t offset_cnt = 0;                                                          //where are we in the offset area
